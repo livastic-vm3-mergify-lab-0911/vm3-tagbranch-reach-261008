@@ -1,0 +1,11 @@
+scopes:
+  source:
+    files:
+      critical:
+        include:
+          - critical/**/*
+      ignored:
+        include:
+          - ignored/**/*
+pull_request_rules: []
+queue_rules: []
