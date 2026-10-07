@@ -1,0 +1,43 @@
+name: VM3 Tag Branch Alias Gate
+on:
+  pull_request:
+    branches:
+      - vm3-tagalias-control-261008
+      - vm3-tagalias-base-261008
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: vm3-tagalias-gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full refs and tags
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Detect scopes with exact current release
+        uses: Mergifyio/gha-mergify-ci@v26
+        with:
+          action: scopes
+          mergify_cli_version: 2026.10.3
+          base: ${{ github.base_ref }}
+          head: HEAD
+          mergify_config_path: vm3-tagalias-scopes.yml
+      - name: Enforce critical scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "VM3_BASE_REF=${GITHUB_BASE_REF}"
+          echo "VM3_HEAD_SHA=${GITHUB_SHA}"
+          echo "VM3_SCOPES_JSON_START"
+          cat "$RUNNER_TEMP/mergify-scopes.json"
+          echo
+          echo "VM3_SCOPES_JSON_END"
+          if grep -q '"critical"' "$RUNNER_TEMP/mergify-scopes.json"; then
+            echo "VM3_CRITICAL_SCOPE_PRESENT=1"
+            exit 1
+          fi
+          echo "VM3_CRITICAL_SCOPE_PRESENT=0"
