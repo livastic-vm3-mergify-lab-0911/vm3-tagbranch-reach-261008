@@ -3,7 +3,7 @@ scopes:
     files:
       critical:
         include:
-          - critical/**/*
+          - README.md
       ignored:
         include:
           - ignored/**/*
